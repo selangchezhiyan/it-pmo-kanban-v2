@@ -15,6 +15,7 @@ An IT PMO Kanban board for a fictitious bank, used as an internal demo/training 
 - No `alert()`/`confirm()` (use inline errors and toasts) and no `!important`. Colours and spacing come from CSS custom properties on `:root`.
 - **CSP hash:** the `<meta http-equiv="Content-Security-Policy">` in `<head>` pins the single inline `<script>` with a `script-src 'sha256-…'` hash. **Any edit to the script invalidates that hash and silently disables the script (breaking the whole app).** After changing the script, recompute and update the hash over the exact script contents with LF line endings, e.g.:
   `node -e 'const c=require("crypto"),f=require("fs");const s=f.readFileSync("index.html","utf8").replace(/\r\n/g,"\n");const m=s.match(/<script>([\s\S]*?)<\/script>/);console.log("sha256-"+c.createHash("sha256").update(m[1]).digest("base64"))'`
+  The project hook `.claude/hooks/update-csp-hash.js` (PostToolUse, registered in `.claude/settings.json`) does this automatically after every Edit/Write/Bash/PowerShell call in Claude Code; run the command above yourself when editing outside Claude Code.
   `.gitattributes` forces `*.html` to LF so the served bytes (and therefore the hash) stay stable. `style-src 'unsafe-inline'` is intentional — the inline `<style>` and the charts' dynamic `style="width:…"` attributes need it; `script-src` carries the XSS protection.
 
 ## Running / checking
@@ -25,7 +26,7 @@ There is no build, lint or test tooling. Open `index.html` in a browser. A quick
 rg -n "localStorage|sessionStorage|indexedDB|document\.cookie|alert\(|confirm\(|!important|https?://" index.html
 ```
 
-The only expected hit is the `FORMSUBMIT_ENDPOINT` line.
+The only expected hits are the CSP meta line, the `FORMSUBMIT_ENDPOINT` line and the chat widget's `wa.me` link (a plain `target="_blank"` link, not a network call).
 
 ## Architecture (the `<script>` block, in numbered commented sections)
 
