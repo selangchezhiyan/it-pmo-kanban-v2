@@ -31,11 +31,13 @@
   --warning: 30 90% 36%;      --warning-soft: 40 100% 92%;
   --success: 152 62% 30%;     --success-soft: 145 50% 92%;
 
-  /* Priority marks */
+  /* Priority marks — also the status chart's categorical palette, in this
+     fixed order (validated for lightness, chroma, CVD and contrast on the
+     card surface in both themes) */
   --prio-critical: 0 72% 48%;
   --prio-high: 28 92% 48%;
   --prio-medium: 213 72% 48%;
-  --prio-low: 215 14% 62%;
+  --prio-low: 173 58% 39%;
 
   /* Spacing scale */
   --space-1: 4px;
@@ -77,10 +79,10 @@
     --destructive: 0 85% 70%;   --destructive-soft: 0 45% 17%;
     --warning: 38 95% 62%;      --warning-soft: 38 50% 15%;
     --success: 150 55% 55%;     --success-soft: 150 40% 14%;
-    --prio-critical: 0 85% 64%;
-    --prio-high: 28 95% 58%;
-    --prio-medium: 213 92% 64%;
-    --prio-low: 215 14% 52%;
+    --prio-critical: 352 68% 53%;
+    --prio-high: 38 88% 42%;
+    --prio-medium: 213 79% 57%;
+    --prio-low: 173 80% 35%;
     --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.4);
     --shadow: 0 1px 3px hsl(0 0% 0% / 0.45), 0 4px 12px hsl(0 0% 0% / 0.3);
     --shadow-lg: 0 16px 40px hsl(0 0% 0% / 0.6);
@@ -105,10 +107,10 @@
   --destructive: 0 85% 70%;   --destructive-soft: 0 45% 17%;
   --warning: 38 95% 62%;      --warning-soft: 38 50% 15%;
   --success: 150 55% 55%;     --success-soft: 150 40% 14%;
-  --prio-critical: 0 85% 64%;
-  --prio-high: 28 95% 58%;
-  --prio-medium: 213 92% 64%;
-  --prio-low: 215 14% 52%;
+  --prio-critical: 352 68% 53%;
+  --prio-high: 38 88% 42%;
+  --prio-medium: 213 79% 57%;
+  --prio-low: 173 80% 35%;
   --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.4);
   --shadow: 0 1px 3px hsl(0 0% 0% / 0.45), 0 4px 12px hsl(0 0% 0% / 0.3);
   --shadow-lg: 0 16px 40px hsl(0 0% 0% / 0.6);
@@ -364,6 +366,84 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
 .stat-overdue  { --stat: var(--warning); }
 .stat-overdue.is-alert { --stat: var(--destructive); background: hsl(var(--destructive-soft)); border-color: hsl(var(--destructive) / 0.3); }
 .stat-overdue.is-alert strong { color: hsl(var(--destructive)); }
+
+/* =====================================================================
+   4b. STATUS CHARTS — stacked bars (status × priority), project workload
+   ===================================================================== */
+.charts {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  align-items: start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.chart { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: var(--space-4); min-width: 0; }
+.chart-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-2) var(--space-4); }
+.chart-title { font-size: 15px; font-weight: 700; }
+.chart-sub { margin-top: 2px; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); margin: 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: 6px; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.swatch { width: 10px; height: 10px; border-radius: 3px; background: hsl(var(--prio)); }
+
+/* One shared grid per chart so every row's bar track has the same length */
+.bars {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  font-size: 13px;
+}
+.bars-project { grid-template-columns: minmax(110px, 168px) minmax(0, 1fr) auto minmax(78px, auto); }
+.bar-row { display: contents; }
+.bar-label { color: hsl(var(--foreground)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { display: flex; align-items: center; height: 26px; }
+.bar {
+  display: flex;
+  gap: 2px;
+  height: 18px;
+  min-width: 0;
+  border-radius: 0 4px 4px 0;
+  overflow: hidden;
+  transition: width 300ms ease;
+}
+.seg { --prio: var(--prio-medium); min-width: 3px; height: 100%; background: hsl(var(--prio)); cursor: default; }
+.seg:last-child { border-radius: 0 4px 4px 0; }
+.seg:hover { filter: brightness(1.12); }
+.seg.prio-critical, .swatch.prio-critical { --prio: var(--prio-critical); }
+.seg.prio-high,     .swatch.prio-high     { --prio: var(--prio-high); }
+.seg.prio-medium,   .swatch.prio-medium   { --prio: var(--prio-medium); }
+.seg.prio-low,      .swatch.prio-low      { --prio: var(--prio-low); }
+.seg-open { --prio: var(--primary); }
+.bar-value { min-width: 2ch; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.bar-note { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); white-space: nowrap; }
+.bar-note .warn-icon { color: hsl(var(--destructive)); }
+
+.chart-table summary {
+  width: fit-content;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  cursor: pointer;
+}
+.table-wrap { overflow-x: auto; margin-top: var(--space-2); }
+.chart-table table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.chart-table th, .chart-table td { padding: 4px var(--space-2); border-bottom: 1px solid hsl(var(--border)); text-align: right; white-space: nowrap; }
+.chart-table th:first-child, .chart-table td:first-child { text-align: left; }
+.chart-table thead th { font-size: 12px; color: hsl(var(--muted-foreground)); font-weight: 600; }
+
+.chart-tip {
+  position: fixed;
+  z-index: 60;
+  padding: 6px var(--space-2);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.chart-tip strong { font-variant-numeric: tabular-nums; }
 
 /* =====================================================================
    5. FILTER TOOLBAR
@@ -719,6 +799,9 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
 @media (max-width: 1200px) {
   .overview { grid-template-columns: 1fr; }
 }
+@media (max-width: 1000px) {
+  .charts { grid-template-columns: 1fr; }
+}
 @media (max-width: 1100px) {
   .control { min-width: 150px; }
 }
@@ -731,6 +814,8 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
   .stat strong { font-size: 22px; }
   .board { grid-template-columns: 1fr; }
   .column { min-height: 0; }
+  .bars { grid-template-columns: 84px minmax(0, 1fr) auto; gap: var(--space-2); }
+  .bars-project { grid-template-columns: 96px minmax(0, 1fr) auto auto; }
   .filters { flex-direction: column; align-items: stretch; }
   .filters h2 { align-self: flex-start; }
   .control { min-width: 0; width: 100%; }
@@ -808,6 +893,45 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
       <li class="stat stat-done"><span>Done</span> <strong id="sum-done">0</strong></li>
       <li class="stat stat-overdue" id="stat-overdue"><span>Overdue</span> <strong id="sum-overdue">0</strong></li>
     </ul>
+  </section>
+
+  <!-- ===================================================================
+       STATUS CHARTS — rendered by renderCharts() from all tasks (unfiltered)
+       =================================================================== -->
+  <section class="charts" aria-label="Status charts">
+    <figure class="panel chart" aria-labelledby="chart-status-title">
+      <div class="chart-head">
+        <figcaption>
+          <h2 class="chart-title" id="chart-status-title">Tasks by status and priority</h2>
+          <p class="chart-sub">All tasks · filters not applied</p>
+        </figcaption>
+        <ul class="legend" aria-label="Priority">
+          <li><span class="swatch prio-critical" aria-hidden="true"></span>Critical</li>
+          <li><span class="swatch prio-high" aria-hidden="true"></span>High</li>
+          <li><span class="swatch prio-medium" aria-hidden="true"></span>Medium</li>
+          <li><span class="swatch prio-low" aria-hidden="true"></span>Low</li>
+        </ul>
+      </div>
+      <div class="bars" id="chart-status" role="img"></div>
+      <details class="chart-table">
+        <summary>View as table</summary>
+        <div class="table-wrap" id="table-status"></div>
+      </details>
+    </figure>
+
+    <figure class="panel chart" aria-labelledby="chart-project-title">
+      <div class="chart-head">
+        <figcaption>
+          <h2 class="chart-title" id="chart-project-title">Open tasks by project</h2>
+          <p class="chart-sub">Not Done · ⚠ marks tasks blocked or overdue</p>
+        </figcaption>
+      </div>
+      <div class="bars bars-project" id="chart-project" role="img"></div>
+      <details class="chart-table">
+        <summary>View as table</summary>
+        <div class="table-wrap" id="table-project"></div>
+      </details>
+    </figure>
   </section>
 
   <!-- ===================================================================
@@ -969,6 +1093,9 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
     </form>
   </div>
 </div>
+
+<!-- Chart hover tooltip (decorative duplicate of the table views) -->
+<div class="chart-tip" id="chart-tip" hidden aria-hidden="true"></div>
 
 <!-- Toast region: announced politely to screen readers -->
 <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
@@ -1170,7 +1297,6 @@ function computeHealth(tasks) {
   const open = tasks.filter((t) => t.status !== "Done");
   const atRisk = open.filter((t) => t.status === "Blocked" || isOverdue(t));
   const critical = atRisk.filter((t) => t.priority === "Critical");
-  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
   if (critical.length) {
     return { level: "red", label: "Red", reason: `${plural(critical.length, "critical task")} blocked or overdue; ${plural(atRisk.length, "task")} at risk in total.` };
@@ -1180,6 +1306,93 @@ function computeHealth(tasks) {
   }
   return { level: "green", label: "Green", reason: open.length ? "On track — nothing blocked or overdue." : "All tasks are done." };
 }
+
+/* =======================================================================
+   7b. STATUS CHARTS — horizontal bars over all tasks (ignores filters).
+       Status chart: one bar per column, stacked by priority in PRIORITIES
+       order. Project chart: open (not Done) tasks per project, one hue,
+       with the blocked/overdue count as an icon + text note.
+   ======================================================================= */
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+function renderTable(headers, rows) {
+  const head = headers.map((h) => `<th scope="col">${escapeHtml(h)}</th>`).join("");
+  const body = rows.map((r) =>
+    `<tr>${r.map((c, i) => (i === 0 ? `<th scope="row">${escapeHtml(c)}</th>` : `<td>${escapeHtml(c)}</td>`)).join("")}</tr>`
+  ).join("");
+  return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function renderCharts(tasks) {
+  // Status × priority
+  const statusRows = STATUSES.map((status) => {
+    const inStatus = tasks.filter((t) => t.status === status);
+    return { status, total: inStatus.length, counts: PRIORITIES.map((p) => inStatus.filter((t) => t.priority === p).length) };
+  });
+  const statusMax = Math.max(1, ...statusRows.map((r) => r.total));
+  const statusEl = document.getElementById("chart-status");
+  statusEl.innerHTML = statusRows.map((r) => {
+    const segs = r.counts.map((n, i) => n
+      ? `<span class="seg prio-${PRIORITIES[i].toLowerCase()}" style="flex-grow:${n}" data-tip="${escapeHtml(`${r.status} · ${PRIORITIES[i]}|${n} of ${r.total}`)}"></span>`
+      : "").join("");
+    return `<div class="bar-row">
+        <span class="bar-label">${escapeHtml(r.status)}</span>
+        <div class="bar-track"><div class="bar" style="width:${(r.total / statusMax) * 100}%">${segs}</div></div>
+        <span class="bar-value">${r.total}</span>
+      </div>`;
+  }).join("");
+  statusEl.setAttribute("aria-label", "Tasks by status and priority. " + statusRows.map((r) =>
+    `${r.status}: ${r.total} (${r.counts.map((n, i) => `${PRIORITIES[i]} ${n}`).join(", ")})`).join("; "));
+  document.getElementById("table-status").innerHTML = renderTable(
+    ["Status", ...PRIORITIES, "Total"],
+    statusRows.map((r) => [r.status, ...r.counts, r.total])
+  );
+
+  // Open tasks by project, largest first (ties keep PROJECTS order)
+  const projectRows = PROJECTS.map((project) => {
+    const open = tasks.filter((t) => t.project === project && t.status !== "Done");
+    return { project, open: open.length, atRisk: open.filter((t) => t.status === "Blocked" || isOverdue(t)).length };
+  }).sort((a, b) => b.open - a.open);
+  const projectMax = Math.max(1, ...projectRows.map((r) => r.open));
+  const projectEl = document.getElementById("chart-project");
+  projectEl.innerHTML = projectRows.map((r) => {
+    const note = r.atRisk
+      ? `<span class="bar-note"><span class="warn-icon" aria-hidden="true">⚠</span> ${r.atRisk} at risk</span>`
+      : `<span class="bar-note"></span>`;
+    const seg = r.open
+      ? `<span class="seg seg-open" style="flex-grow:1" data-tip="${escapeHtml(`${r.project}|${plural(r.open, "open task")}${r.atRisk ? `, ${r.atRisk} at risk` : ""}`)}"></span>`
+      : "";
+    return `<div class="bar-row">
+        <span class="bar-label" title="${escapeHtml(r.project)}">${escapeHtml(r.project)}</span>
+        <div class="bar-track"><div class="bar" style="width:${(r.open / projectMax) * 100}%">${seg}</div></div>
+        <span class="bar-value">${r.open}</span>
+        ${note}
+      </div>`;
+  }).join("");
+  projectEl.setAttribute("aria-label", "Open tasks by project. " + projectRows.map((r) =>
+    `${r.project}: ${r.open} open${r.atRisk ? `, ${r.atRisk} at risk` : ""}`).join("; "));
+  document.getElementById("table-project").innerHTML = renderTable(
+    ["Project", "Open", "At risk"],
+    projectRows.map((r) => [r.project, r.open, r.atRisk])
+  );
+}
+
+// One shared tooltip for every bar segment. data-tip is "title|value".
+const chartTip = document.getElementById("chart-tip");
+const chartsEl = document.querySelector(".charts");
+
+chartsEl.addEventListener("pointermove", (event) => {
+  const seg = event.target.closest("[data-tip]");
+  if (!seg) { chartTip.hidden = true; return; }
+  const [title, value] = seg.dataset.tip.split("|");
+  chartTip.replaceChildren(document.createTextNode(`${title}: `), Object.assign(document.createElement("strong"), { textContent: value }));
+  chartTip.hidden = false;
+  const pad = 12;
+  const { offsetWidth: w, offsetHeight: h } = chartTip;
+  chartTip.style.left = `${Math.min(event.clientX + pad, window.innerWidth - w - pad)}px`;
+  chartTip.style.top = `${Math.max(pad, event.clientY - h - pad)}px`;
+});
+chartsEl.addEventListener("pointerleave", () => { chartTip.hidden = true; });
 
 /* =======================================================================
    8. RENDERING — renderBoard() is the only writer of card markup
@@ -1278,6 +1491,8 @@ function renderSummary() {
   document.getElementById("progress-text").textContent = `${pct}% · ${done} of ${total}`;
   document.getElementById("progress").setAttribute("aria-valuenow", String(pct));
   document.getElementById("progress-bar").style.width = `${pct}%`;
+
+  renderCharts(state.tasks);
 }
 
 /**

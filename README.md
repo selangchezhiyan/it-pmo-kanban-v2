@@ -26,6 +26,7 @@ This is the **v2 redesign**. The original v1 is still at [it-pmo-kanban](https:/
 - **Redesigned UI** using semantic design tokens (`--background`, `--card`, `--primary`, `--muted`, …) in the shadcn/ui style, rebuilt in plain CSS custom properties.
 - **Light and dark themes.** The board follows your OS setting, and the app-bar toggle switches theme for the current visit only (nothing is stored).
 - **Delivery health panel** with a red/amber/green status: red when a Critical task is blocked or overdue, amber when anything else is, green otherwise. A completion bar sits underneath.
+- **Status charts:** *Tasks by status and priority* (one stacked bar per column, split by priority) and *Open tasks by project* (with a ⚠ count of blocked or overdue tasks). Both use all tasks, show a tooltip on hover and have a "View as table" option. The priority colours were checked with a colour-blindness and contrast validator in both themes.
 - **KPI tiles** for each column and for overdue tasks. The Overdue tile turns red when any task is overdue.
 - **Refreshed cards:** priority stripe and dot, assignee initials avatar, and a calendar due date that turns red when overdue.
 
