@@ -29,7 +29,7 @@ jobs:
       - name: App constraints (no storage, dialogs, !important or extra network calls)
         run: |
           hits=$(grep -nE 'localStorage|sessionStorage|indexedDB|document\.cookie|alert\(|confirm\(|!important|https?://|fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|<script[^>]+src=|<link[^>]+href="https?:|<img[^>]+src="https?:|@import|url\(https?:' index.html \
-            | grep -vE 'const FORMSUBMIT_ENDPOINT = |await fetch\(FORMSUBMIT_ENDPOINT|http-equiv="Content-Security-Policy"' || true)
+            | grep -vE 'const FORMSUBMIT_ENDPOINT = |const WHATSAPP_URL = |await fetch\(FORMSUBMIT_ENDPOINT|http-equiv="Content-Security-Policy"' || true)
           if [ -n "$hits" ]; then echo "Constraint violations:"; echo "$hits"; exit 1; fi
           [ "$(grep -c 'fetch(' index.html)" -eq 1 ] || { echo "Expected exactly one fetch()"; exit 1; }
 

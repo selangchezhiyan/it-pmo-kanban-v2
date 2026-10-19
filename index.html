@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WbFKepudAWpLNju7dzTTY5dcIJweUi+NCvh5CeqPQF8='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WdiXRrcsvUbb5taANmgFkz1zUIKVnY0OyS4STMIhtRk='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IT PMO Kanban v2</title>
 <style>
@@ -848,10 +848,21 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
   font-weight: 700;
 }
 .chat-head .icon-btn { color: inherit; }
-.chat-body { padding: var(--space-4); background: hsl(var(--muted)); min-height: 72px; }
+.chat-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: hsl(var(--muted));
+  min-height: 120px;
+  max-height: min(320px, 50vh);
+  overflow-y: auto;
+}
 .chat-bubble {
-  display: inline-block;
   max-width: 85%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
   margin: 0;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius) var(--radius) var(--radius) var(--radius-sm);
@@ -859,8 +870,48 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
   box-shadow: var(--shadow-sm);
   font-size: 14px;
 }
-.chat-foot { padding: var(--space-3) var(--space-4); }
-.chat-foot .btn { width: 100%; justify-content: center; text-decoration: none; }
+.chat-bubble-user {
+  align-self: flex-end;
+  border-radius: var(--radius) var(--radius) var(--radius-sm) var(--radius);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+.chat-form {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3) var(--space-1) var(--space-3);
+  border-top: 1px solid hsl(var(--border));
+}
+.chat-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--radius-full);
+  background: hsl(var(--card));
+  font-size: 14px;
+}
+.chat-form input:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 1px; }
+.chat-send {
+  display: grid;
+  place-items: center;
+  width: 38px; height: 38px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: hsl(var(--success));
+  color: hsl(0 0% 100%);
+  cursor: pointer;
+}
+.chat-send:focus-visible { outline: 3px solid hsl(var(--ring)); outline-offset: 2px; }
+.chat-send svg { width: 18px; height: 18px; }
+.chat-note {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-3);
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
 
 /* =====================================================================
    10. RESPONSIVE — stack columns below 768px
@@ -1188,10 +1239,15 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
     <span id="chat-title">IT PMO Assistant</span>
     <button type="button" class="icon-btn" id="chat-close" aria-label="Close chat">×</button>
   </div>
-  <div class="chat-body" id="chat-body" aria-live="polite"></div>
-  <div class="chat-foot">
-    <a class="btn btn-primary" id="chat-whatsapp" href="https://wa.me/6590675453" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
-  </div>
+  <div class="chat-body" id="chat-body" role="log" aria-live="polite"></div>
+  <form class="chat-form" id="chat-form" novalidate>
+    <label class="sr-only" for="chat-input">Type your message</label>
+    <input id="chat-input" type="text" maxlength="500" autocomplete="off" placeholder="Type a message…">
+    <button type="submit" class="chat-send" aria-label="Send via WhatsApp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+    </button>
+  </form>
+  <p class="chat-note">Sending opens WhatsApp (+65 9067 5453) with your message.</p>
 </section>
 <button type="button" class="chat-launcher" id="chat-launcher" aria-label="Open chat" aria-expanded="false" aria-controls="chat-panel">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>
@@ -2071,24 +2127,42 @@ function showToast(message, type = "success") {
 }
 
 /* =======================================================================
-   16b. CHAT WIDGET — opening it posts the greeting; the link goes to WhatsApp
+   16b. CHAT WIDGET — opening it posts the greeting; sending a message
+        opens WhatsApp with that text prefilled
    ======================================================================= */
 const CHAT_GREETING = "How can I help you?";
+const WHATSAPP_URL = "https://wa.me/6590675453";
 const chatLauncher = document.getElementById("chat-launcher");
 const chatPanel = document.getElementById("chat-panel");
 const chatBody = document.getElementById("chat-body");
+const chatInput = document.getElementById("chat-input");
+
+function addChatBubble(text, fromUser = false) {
+  const bubble = document.createElement("p");
+  bubble.className = fromUser ? "chat-bubble chat-bubble-user" : "chat-bubble";
+  bubble.textContent = text; // textContent: never parsed as HTML
+  chatBody.append(bubble);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
 
 function setChatOpen(open) {
   chatPanel.hidden = !open;
   chatLauncher.setAttribute("aria-expanded", String(open));
   chatLauncher.setAttribute("aria-label", open ? "Close chat" : "Open chat");
   if (!open) return;
-  const bubble = document.createElement("p");
-  bubble.className = "chat-bubble";
-  bubble.textContent = CHAT_GREETING;
-  chatBody.replaceChildren(bubble);
-  document.getElementById("chat-whatsapp").focus();
+  if (!chatBody.childElementCount) addChatBubble(CHAT_GREETING);
+  chatInput.focus();
 }
+
+document.getElementById("chat-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = chatInput.value.trim();
+  if (!text) { chatInput.focus(); return; }
+  addChatBubble(text, true);
+  chatInput.value = "";
+  window.open(`${WHATSAPP_URL}?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  addChatBubble("Thanks! I've opened WhatsApp so our team can reply there.");
+});
 
 chatLauncher.addEventListener("click", () => setChatOpen(chatPanel.hidden));
 document.getElementById("chat-close").addEventListener("click", () => {
