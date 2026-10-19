@@ -3,20 +3,49 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: index.html exists
+        run: test -f index.html
+
+      # Only the FORMSUBMIT_ENDPOINT line and its single fetch() may match.
+      - name: App constraints (no storage, dialogs, !important or extra network calls)
+        run: |
+          hits=$(grep -nE 'localStorage|sessionStorage|indexedDB|document\.cookie|alert\(|confirm\(|!important|https?://|fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|<script[^>]+src=|<link[^>]+href="https?:|<img[^>]+src="https?:|@import|url\(https?:' index.html \
+            | grep -vE 'const FORMSUBMIT_ENDPOINT = |await fetch\(FORMSUBMIT_ENDPOINT' || true)
+          if [ -n "$hits" ]; then echo "Constraint violations:"; echo "$hits"; exit 1; fi
+          [ "$(grep -c 'fetch(' index.html)" -eq 1 ] || { echo "Expected exactly one fetch()"; exit 1; }
+
+      - name: No secrets in index.html
+        run: |
+          if grep -nEi -- '-----BEGIN .*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{36,}|github_pat_|xox[baprs]-|AIza[0-9A-Za-z_-]{35}|(api[_-]?key|secret|token|passw(or)?d)\s*[:=]\s*["'"'"'][^"'"'"']{8,}' index.html; then
+            echo "Possible secret found"; exit 1
+          fi
+
+  deploy:
+    needs: check
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

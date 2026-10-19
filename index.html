@@ -3,44 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IT PMO Kanban</title>
+<title>IT PMO Kanban v2</title>
 <style>
 /* =====================================================================
-   1. DESIGN TOKENS — palette, spacing scale, type
+   1. DESIGN TOKENS — semantic, shadcn-style (H S L triples), light + dark
    ===================================================================== */
 :root {
   color-scheme: light;
 
-  /* Corporate blue palette */
-  --blue-900: #0b2545;
-  --blue-800: #13315c;
-  --blue-700: #1d4e89;
-  --blue-600: #2563a8;
-  --blue-500: #3a7bd5;
-  --blue-100: #e3ecf8;
-  --blue-50:  #f2f6fc;
+  --background: 216 33% 97%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --muted: 214 32% 94%;
+  --muted-foreground: 215 16% 40%;
+  --primary: 213 72% 36%;
+  --primary-hover: 213 74% 30%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 40% 93%;
+  --accent: 213 80% 96%;
+  --border: 214 28% 87%;
+  --input: 214 24% 78%;
+  --ring: 213 90% 50%;
+  --overlay: 222 47% 8%;
 
-  /* Neutrals */
-  --bg: #eef2f7;
-  --surface: #ffffff;
-  --border: #d5dce6;
-  --border-strong: #b7c2d1;
-  --text: #1a2333;
-  --muted: #5a6577;
-  --on-dark: #ffffff;
-  --on-dark-muted: #b9c8de;
+  /* Status / feedback (strong = text & marks, soft = tinted backgrounds) */
+  --destructive: 0 72% 44%;   --destructive-soft: 0 86% 96%;
+  --warning: 30 90% 36%;      --warning-soft: 40 100% 92%;
+  --success: 152 62% 30%;     --success-soft: 145 50% 92%;
 
-  /* Priority colours (border / pill text / pill background) */
-  --crit: #c62828;     --crit-text: #a51d1d; --crit-bg: #fdecea;
-  --high: #e09400;     --high-text: #7a5000; --high-bg: #fff3d6;
-  --med: #2563a8;      --med-text: #1d4e89;  --med-bg: #e3ecf8;
-  --low: #8a94a3;      --low-text: #4b5563;  --low-bg: #eef0f3;
-
-  /* Feedback */
-  --success: #1e7a46;  --success-bg: #e6f4ec;
-  --warning: #8a5a00;  --warning-bg: #fff3d6;
-  --danger: #c62828;   --danger-bg: #fdecea;
-  --focus: #f5a524;
+  /* Priority marks */
+  --prio-critical: 0 72% 48%;
+  --prio-high: 28 92% 48%;
+  --prio-medium: 213 72% 48%;
+  --prio-low: 215 14% 62%;
 
   /* Spacing scale */
   --space-1: 4px;
@@ -50,15 +45,73 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --radius-sm: 4px;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(11, 37, 69, 0.08);
-  --shadow: 0 2px 6px rgba(11, 37, 69, 0.10);
-  --shadow-lg: 0 12px 32px rgba(11, 37, 69, 0.25);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+  --shadow-sm: 0 1px 2px hsl(222 47% 11% / 0.06);
+  --shadow: 0 1px 3px hsl(222 47% 11% / 0.08), 0 4px 12px hsl(222 47% 11% / 0.05);
+  --shadow-lg: 0 16px 40px hsl(222 47% 11% / 0.22);
 
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: 222 40% 7%;
+    --foreground: 213 31% 93%;
+    --card: 222 34% 11%;
+    --muted: 222 28% 16%;
+    --muted-foreground: 215 18% 68%;
+    --primary: 213 92% 66%;
+    --primary-hover: 213 92% 74%;
+    --primary-foreground: 222 47% 10%;
+    --secondary: 222 28% 18%;
+    --accent: 217 40% 17%;
+    --border: 220 24% 20%;
+    --input: 220 20% 30%;
+    --ring: 213 92% 66%;
+    --overlay: 222 60% 3%;
+    --destructive: 0 85% 70%;   --destructive-soft: 0 45% 17%;
+    --warning: 38 95% 62%;      --warning-soft: 38 50% 15%;
+    --success: 150 55% 55%;     --success-soft: 150 40% 14%;
+    --prio-critical: 0 85% 64%;
+    --prio-high: 28 95% 58%;
+    --prio-medium: 213 92% 64%;
+    --prio-low: 215 14% 52%;
+    --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.4);
+    --shadow: 0 1px 3px hsl(0 0% 0% / 0.45), 0 4px 12px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 16px 40px hsl(0 0% 0% / 0.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: 222 40% 7%;
+  --foreground: 213 31% 93%;
+  --card: 222 34% 11%;
+  --muted: 222 28% 16%;
+  --muted-foreground: 215 18% 68%;
+  --primary: 213 92% 66%;
+  --primary-hover: 213 92% 74%;
+  --primary-foreground: 222 47% 10%;
+  --secondary: 222 28% 18%;
+  --accent: 217 40% 17%;
+  --border: 220 24% 20%;
+  --input: 220 20% 30%;
+  --ring: 213 92% 66%;
+  --overlay: 222 60% 3%;
+  --destructive: 0 85% 70%;   --destructive-soft: 0 45% 17%;
+  --warning: 38 95% 62%;      --warning-soft: 38 50% 15%;
+  --success: 150 55% 55%;     --success-soft: 150 40% 14%;
+  --prio-critical: 0 85% 64%;
+  --prio-high: 28 95% 58%;
+  --prio-medium: 213 92% 64%;
+  --prio-low: 215 14% 52%;
+  --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.4);
+  --shadow: 0 1px 3px hsl(0 0% 0% / 0.45), 0 4px 12px hsl(0 0% 0% / 0.3);
+  --shadow-lg: 0 16px 40px hsl(0 0% 0% / 0.6);
 }
 
 /* =====================================================================
@@ -71,8 +124,9 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.45;
-  color: var(--text);
-  background: var(--bg);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, p { margin: 0; }
@@ -80,7 +134,7 @@ h1, h2, h3, p { margin: 0; }
 button, input, select, textarea { font: inherit; color: inherit; }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
@@ -94,126 +148,226 @@ button, input, select, textarea { font: inherit; color: inherit; }
   border: 0;
 }
 
+svg.icon { width: 16px; height: 16px; flex: none; }
+
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  cursor: pointer;
+  height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid hsl(var(--input));
+  border-radius: var(--radius-sm);
+  background: hsl(var(--card));
+  font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 120ms, border-color 120ms, color 120ms;
 }
-.btn:hover { background: var(--blue-50); }
+.btn:hover { background: hsl(var(--muted)); }
 .btn-primary {
-  background: var(--blue-600);
-  border-color: var(--blue-600);
-  color: var(--on-dark);
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
 }
-.btn-primary:hover { background: var(--blue-700); }
-.btn-primary:disabled { background: var(--low); border-color: var(--low); cursor: progress; }
-.btn-accent {
-  background: var(--surface);
-  color: var(--blue-800);
-  border-color: var(--surface);
-}
-.btn-accent:hover { background: var(--blue-100); }
+.btn-primary:hover { background: hsl(var(--primary-hover)); border-color: hsl(var(--primary-hover)); }
+.btn-primary:disabled { opacity: 0.6; cursor: progress; }
+.btn-ghost { border-color: transparent; background: transparent; }
 
 .btn-xs {
-  padding: 2px var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 var(--space-2);
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid var(--border-strong);
+  border: 1px solid hsl(var(--input));
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: hsl(var(--card));
   cursor: pointer;
 }
-.btn-xs:hover { background: var(--blue-50); }
-.btn-danger { background: var(--danger); border-color: var(--danger); color: var(--on-dark); }
-.btn-danger:hover { background: var(--crit-text); }
+.btn-xs:hover { background: hsl(var(--muted)); }
+.btn-danger {
+  background: hsl(var(--destructive));
+  border-color: hsl(var(--destructive));
+  color: hsl(var(--card));
+}
+.btn-danger:hover { background: hsl(var(--destructive) / 0.88); }
 
 .icon-btn {
   display: inline-grid;
   place-items: center;
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--muted);
+  color: hsl(var(--muted-foreground));
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
-.icon-btn:hover { background: var(--danger-bg); color: var(--danger); }
+.icon-btn:hover { background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+.card .icon-btn:hover { background: hsl(var(--destructive-soft)); color: hsl(var(--destructive)); }
+.icon-btn-lg { width: 36px; height: 36px; border-color: hsl(var(--border)); }
 
 /* =====================================================================
-   3. HEADER — wordmark, summary strip, actions
+   3. APP BAR — wordmark, demo note, theme toggle, Add Task
    ===================================================================== */
-.app-header {
-  background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
-  color: var(--on-dark);
-  padding: var(--space-4) var(--space-5);
-}
-.header-row {
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background: hsl(var(--card) / 0.92);
+  border-bottom: 1px solid hsl(var(--border));
+  backdrop-filter: saturate(1.4) blur(8px);
 }
-.wordmark {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+.wordmark { display: flex; align-items: center; gap: var(--space-3); }
+.logo {
+  display: grid;
+  place-items: center;
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
 }
 .wordmark h1 {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-.wordmark .tagline {
-  font-size: 12px;
-  color: var(--on-dark-muted);
-}
-.header-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
+.version {
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: hsl(var(--accent));
+  border: 1px solid hsl(var(--primary) / 0.25);
+  color: hsl(var(--primary));
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.tagline { font-size: 12px; color: hsl(var(--muted-foreground)); }
+.appbar-actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .demo-note {
+  max-width: 250px;
+  margin-right: var(--space-2);
   font-size: 12px;
-  color: var(--on-dark-muted);
-  max-width: 260px;
+  line-height: 1.35;
+  color: hsl(var(--muted-foreground));
+}
+.theme-toggle .icon-moon { display: none; }
+.theme-toggle[data-current="dark"] .icon-sun { display: none; }
+.theme-toggle[data-current="dark"] .icon-moon { display: block; }
+
+/* =====================================================================
+   4. OVERVIEW — delivery health (RAG) + KPI tiles
+   ===================================================================== */
+main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px; margin: 0 auto; }
+
+.overview {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2.4fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.panel {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.health { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); }
+.health-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+.rag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+}
+.rag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.rag-red   { background: hsl(var(--destructive-soft)); color: hsl(var(--destructive)); }
+.rag-amber { background: hsl(var(--warning-soft));     color: hsl(var(--warning)); }
+.rag-green { background: hsl(var(--success-soft));     color: hsl(var(--success)); }
+.health-reason { font-size: 14px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.progress-label strong { color: hsl(var(--foreground)); }
+.progress {
+  height: 8px;
+  margin-top: var(--space-1);
+  border-radius: var(--radius-full);
+  background: hsl(var(--muted));
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: hsl(var(--success));
+  transition: width 300ms ease;
 }
 
 .summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: var(--space-4) 0 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
-.summary li {
+.stat {
+  --stat: var(--muted-foreground);
   display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 13px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
-.summary strong { font-size: 16px; }
-.summary .summary-overdue { background: rgba(198, 40, 40, 0.35); }
+.stat span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+.stat span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: hsl(var(--stat)); }
+.stat strong { font-size: 26px; font-weight: 750; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat-total span::before { display: none; }
+.stat-progress { --stat: var(--primary); }
+.stat-blocked  { --stat: var(--destructive); }
+.stat-done     { --stat: var(--success); }
+.stat-overdue  { --stat: var(--warning); }
+.stat-overdue.is-alert { --stat: var(--destructive); background: hsl(var(--destructive-soft)); border-color: hsl(var(--destructive) / 0.3); }
+.stat-overdue.is-alert strong { color: hsl(var(--destructive)); }
 
 /* =====================================================================
-   4. FILTER BAR
+   5. FILTER TOOLBAR
    ===================================================================== */
-main { padding: var(--space-4) var(--space-5) var(--space-6); }
-
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -221,32 +375,37 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
 }
-.filters h2 {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  align-self: center;
-  margin-right: var(--space-2);
-}
-.filter-field { display: flex; flex-direction: column; gap: 2px; }
-.filter-field label { font-size: 12px; font-weight: 600; color: var(--muted); }
-.filters input, .filters select {
-  min-width: 170px;
-  padding: 6px var(--space-2);
-  border: 1px solid var(--border-strong);
+.filters h2 { align-self: center; margin-right: var(--space-1); }
+.filter-field { display: flex; flex-direction: column; gap: var(--space-1); }
+.filter-field label { font-size: 12px; font-weight: 600; color: hsl(var(--muted-foreground)); }
+.control {
+  height: 36px;
+  min-width: 180px;
+  padding: 0 var(--space-3);
+  border: 1px solid hsl(var(--input));
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: hsl(var(--card));
+  font-size: 14px;
 }
-.filter-status { font-size: 13px; color: var(--muted); margin-left: auto; align-self: center; }
+.control:hover { border-color: hsl(var(--muted-foreground) / 0.6); }
+.with-icon { position: relative; display: flex; align-items: center; }
+.with-icon .icon { position: absolute; left: 10px; color: hsl(var(--muted-foreground)); pointer-events: none; }
+.with-icon .control { padding-left: 32px; width: 100%; }
+.filter-status {
+  align-self: center;
+  margin-left: auto;
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: hsl(var(--accent));
+  color: hsl(var(--primary));
+  font-size: 13px;
+  font-weight: 600;
+}
+.filter-status:empty { display: none; }
 
 /* =====================================================================
-   5. BOARD & COLUMNS
+   6. BOARD & COLUMNS
    ===================================================================== */
 .board {
   display: grid;
@@ -255,42 +414,48 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   align-items: start;
 }
 .column {
+  --status: var(--muted-foreground);
   display: flex;
   flex-direction: column;
   min-height: 320px;
-  background: var(--blue-50);
-  border: 2px solid var(--border);
+  background: hsl(var(--muted) / 0.6);
+  border: 1px solid hsl(var(--border));
+  border-top: 3px solid hsl(var(--status));
   border-radius: var(--radius-lg);
-  transition: background-color 120ms, border-color 120ms;
+  transition: background-color 120ms, box-shadow 120ms;
 }
+.column[data-status="In Progress"] { --status: var(--primary); }
+.column[data-status="Blocked"]     { --status: var(--destructive); }
+.column[data-status="Done"]        { --status: var(--success); }
 .column.drag-over {
-  background: var(--blue-100);
-  border: 2px dashed var(--blue-500);
+  background: hsl(var(--accent));
+  box-shadow: inset 0 0 0 2px hsl(var(--ring) / 0.6);
 }
 .column-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4) var(--space-2);
 }
-.column-header h2 { font-size: 15px; font-weight: 700; color: var(--blue-900); }
+.column-header h2 { display: flex; align-items: center; gap: var(--space-2); font-size: 15px; font-weight: 700; }
+.column-header h2::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: hsl(var(--status)); }
 .column-header h2:focus { outline: none; }
-.column-header h2:focus-visible { outline: 3px solid var(--focus); }
-.column-hint { font-size: 12px; color: var(--muted); }
+.column-header h2:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; border-radius: 4px; }
+.column-hint { margin-top: 2px; font-size: 12px; color: hsl(var(--muted-foreground)); }
 .count {
   min-width: 28px;
   padding: 1px var(--space-2);
-  border-radius: 999px;
-  background: var(--blue-700);
-  color: var(--on-dark);
+  border-radius: var(--radius-full);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--status));
   font-size: 12px;
   font-weight: 700;
   text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.column[data-status="Blocked"] .count { background: var(--crit); }
-.column[data-status="Done"] .count { background: var(--success); }
 
 .card-list {
   flex: 1;
@@ -298,126 +463,138 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   flex-direction: column;
   gap: var(--space-3);
   margin: 0;
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-3);
   list-style: none;
 }
 .empty {
   padding: var(--space-5) var(--space-3);
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed hsl(var(--input));
   border-radius: var(--radius);
-  color: var(--muted);
+  color: hsl(var(--muted-foreground));
   font-size: 13px;
   text-align: center;
 }
 
 /* =====================================================================
-   6. CARDS
+   7. CARDS
    ===================================================================== */
 .card {
-  --prio: var(--med);
+  --prio: var(--prio-medium);
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-3);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 5px solid var(--prio);
+  padding: var(--space-3) var(--space-3) var(--space-2) calc(var(--space-3) + 3px);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   cursor: grab;
+  overflow: hidden;
+  transition: box-shadow 140ms, transform 140ms, border-color 140ms;
 }
-.card:hover { box-shadow: var(--shadow); }
-.card.dragging { opacity: 0.45; cursor: grabbing; }
-.card.prio-critical { --prio: var(--crit); }
-.card.prio-high     { --prio: var(--high); }
-.card.prio-medium   { --prio: var(--med); }
-.card.prio-low      { --prio: var(--low); }
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: hsl(var(--prio));
+}
+.card:hover { box-shadow: var(--shadow); transform: translateY(-1px); border-color: hsl(var(--input)); }
+.card.dragging { opacity: 0.45; cursor: grabbing; transform: none; }
+.card.prio-critical { --prio: var(--prio-critical); }
+.card.prio-high     { --prio: var(--prio-high); }
+.card.prio-medium   { --prio: var(--prio-medium); }
+.card.prio-low      { --prio: var(--prio-low); }
 
-.card-top {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 26px;
-}
-.card-id {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--muted);
-}
+.card-top { display: flex; align-items: center; gap: var(--space-2); min-height: 28px; }
+.card-id { font-family: var(--font-mono); font-size: 11.5px; color: hsl(var(--muted-foreground)); }
 .card-top .spacer { flex: 1; }
 .card-title { font-size: 15px; font-weight: 650; line-height: 1.3; overflow-wrap: anywhere; }
-.card-project { font-size: 13px; color: var(--blue-700); font-weight: 600; }
+.card-project { font-size: 13px; font-weight: 600; color: hsl(var(--primary)); }
 .card-desc {
   font-size: 13px;
-  color: var(--muted);
+  color: hsl(var(--muted-foreground));
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   overflow-wrap: anywhere;
 }
-.card-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-4);
-  margin: 0;
-  font-size: 13px;
-}
-.card-meta div { display: flex; gap: var(--space-1); }
-.card-meta dt { color: var(--muted); }
-.card-meta dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
 
 .card-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .pill, .tag, .badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   padding: 1px var(--space-2);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 650;
   white-space: nowrap;
 }
-.pill-critical { background: var(--crit-bg); color: var(--crit-text); }
-.pill-high     { background: var(--high-bg); color: var(--high-text); }
-.pill-medium   { background: var(--med-bg);  color: var(--med-text); }
-.pill-low      { background: var(--low-bg);  color: var(--low-text); }
-.tag {
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  color: var(--muted);
-  font-weight: 600;
-}
+.pill { background: hsl(var(--prio) / 0.12); color: hsl(var(--foreground)); }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: hsl(var(--prio)); }
+.tag { border: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); font-weight: 600; }
 .badge-overdue {
-  background: var(--danger-bg);
-  color: var(--crit-text);
-  border: 1px solid #f3b8b3;
+  background: hsl(var(--destructive-soft));
+  color: hsl(var(--destructive));
+  border: 1px solid hsl(var(--destructive) / 0.3);
 }
 
-.card-actions {
+.card-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
+  margin: 0;
   padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid hsl(var(--border));
+  font-size: 13px;
 }
+.card-meta dd { display: flex; align-items: center; gap: var(--space-2); margin: 0; overflow-wrap: anywhere; }
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 24px; height: 24px;
+  flex: none;
+  border-radius: 50%;
+  background: hsl(var(--secondary));
+  color: hsl(var(--primary));
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.assignee-name { font-weight: 600; }
+.due { color: hsl(var(--muted-foreground)); font-variant-numeric: tabular-nums; }
+.due .icon { width: 14px; height: 14px; }
+.due.is-overdue { color: hsl(var(--destructive)); font-weight: 650; }
+
+.card-actions { display: flex; align-items: center; gap: var(--space-2); min-height: 28px; }
 .btn-link {
-  padding: 2px var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 var(--space-2);
+  margin-left: calc(-1 * var(--space-2));
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--blue-700);
+  color: hsl(var(--primary));
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
-.btn-link:hover { background: var(--blue-50); border-color: var(--blue-100); }
+.btn-link:hover { background: hsl(var(--accent)); }
 .move-menu { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .move-menu select {
-  padding: 2px var(--space-1);
+  height: 26px;
+  padding: 0 var(--space-1);
   font-size: 13px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid hsl(var(--input));
   border-radius: var(--radius-sm);
+  background: hsl(var(--card));
 }
 .confirm {
   display: inline-flex;
@@ -425,12 +602,12 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   gap: var(--space-1);
   padding: 2px var(--space-1) 2px var(--space-2);
   border-radius: var(--radius-sm);
-  background: var(--danger-bg);
+  background: hsl(var(--destructive-soft));
 }
-.confirm-label { font-size: 12px; font-weight: 700; color: var(--crit-text); }
+.confirm-label { font-size: 12px; font-weight: 700; color: hsl(var(--destructive)); }
 
 /* =====================================================================
-   7. MODAL & FORM
+   8. MODAL & FORM
    ===================================================================== */
 .overlay {
   position: fixed;
@@ -440,25 +617,26 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   place-items: start center;
   padding: var(--space-6) var(--space-4);
   overflow-y: auto;
-  background: rgba(11, 37, 69, 0.45);
+  background: hsl(var(--overlay) / 0.55);
+  backdrop-filter: blur(2px);
 }
 .overlay[hidden] { display: none; }
 .modal {
   width: min(640px, 100%);
-  background: var(--surface);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
 .modal-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) 0;
 }
-.modal-header h2 { font-size: 18px; color: var(--blue-900); }
-.modal-header .icon-btn:hover { background: var(--blue-50); color: var(--text); }
-.modal-note { font-size: 12px; color: var(--muted); padding: var(--space-3) var(--space-5) 0; }
+.modal-header h2 { font-size: 18px; font-weight: 700; }
+.modal-note { margin-top: var(--space-1); font-size: 13px; color: hsl(var(--muted-foreground)); }
 
 .task-form {
   display: grid;
@@ -466,31 +644,34 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   gap: var(--space-3) var(--space-4);
   padding: var(--space-4) var(--space-5) var(--space-5);
 }
-.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.field { display: flex; flex-direction: column; gap: 6px; }
 .field-full { grid-column: 1 / -1; }
 .field label { font-size: 13px; font-weight: 600; }
-.field .req { color: var(--danger); }
+.field .req { color: hsl(var(--destructive)); }
 .field input, .field select, .field textarea {
-  padding: var(--space-2);
-  border: 1px solid var(--border-strong);
+  min-height: 36px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid hsl(var(--input));
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: hsl(var(--card));
+  font-size: 14px;
 }
-.field textarea { resize: vertical; min-height: 80px; }
-.field [aria-invalid="true"] { border-color: var(--danger); background: #fffafa; }
-.field-hint { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
-.error { min-height: 1em; font-size: 12px; font-weight: 600; color: var(--danger); }
+.field textarea { resize: vertical; min-height: 84px; }
+.field [aria-invalid="true"] { border-color: hsl(var(--destructive)); background: hsl(var(--destructive-soft) / 0.5); }
+.field-hint { display: flex; justify-content: space-between; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.error { min-height: 1em; font-size: 12px; font-weight: 600; color: hsl(var(--destructive)); }
 .error:empty { min-height: 0; }
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid hsl(var(--border));
 }
 
 /* =====================================================================
-   8. TOASTS
+   9. TOASTS
    ===================================================================== */
 .toasts {
   position: fixed;
@@ -503,105 +684,157 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
   width: min(380px, calc(100vw - 2 * var(--space-4)));
 }
 .toast {
+  --tone: var(--success);
   display: flex;
   align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-3);
+  border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
-  border-left: 5px solid var(--success);
-  background: var(--surface);
+  background: hsl(var(--card));
   box-shadow: var(--shadow-lg);
   font-size: 14px;
+  animation: toast-in 180ms ease-out;
 }
-.toast-icon { font-weight: 800; }
-.toast-msg { flex: 1; }
-.toast-success { border-left-color: var(--success); }
-.toast-success .toast-icon { color: var(--success); }
-.toast-warning { border-left-color: var(--high); background: var(--warning-bg); }
-.toast-warning .toast-icon { color: var(--warning); }
-.toast-info { border-left-color: var(--blue-500); }
-.toast-info .toast-icon { color: var(--blue-600); }
+.toast-icon {
+  display: grid;
+  place-items: center;
+  width: 22px; height: 22px;
+  flex: none;
+  border-radius: 50%;
+  background: hsl(var(--tone) / 0.15);
+  color: hsl(var(--tone));
+  font-size: 12px;
+  font-weight: 800;
+}
+.toast-msg { flex: 1; padding-top: 1px; }
+.toast-success { --tone: var(--success); }
+.toast-warning { --tone: var(--warning); background: hsl(var(--warning-soft)); border-color: hsl(var(--warning) / 0.35); }
+.toast-info    { --tone: var(--primary); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* =====================================================================
-   9. RESPONSIVE — stack columns below 768px
+   10. RESPONSIVE — stack columns below 768px
    ===================================================================== */
+@media (max-width: 1200px) {
+  .overview { grid-template-columns: 1fr; }
+}
 @media (max-width: 1100px) {
-  .filters input, .filters select { min-width: 140px; }
+  .control { min-width: 150px; }
 }
 @media (max-width: 767px) {
-  .app-header { padding: var(--space-4); }
-  main { padding: var(--space-3) var(--space-4) var(--space-6); }
+  .appbar { position: static; padding: var(--space-3) var(--space-4); }
+  .demo-note { order: 1; flex-basis: 100%; max-width: none; margin: 0; }
+  main { padding: var(--space-4) var(--space-4) var(--space-6); }
+  .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stat { padding: var(--space-2) var(--space-3); }
+  .stat strong { font-size: 22px; }
   .board { grid-template-columns: 1fr; }
   .column { min-height: 0; }
   .filters { flex-direction: column; align-items: stretch; }
-  .filters input, .filters select { min-width: 0; width: 100%; }
-  .filter-status { margin-left: 0; }
+  .filters h2 { align-self: flex-start; }
+  .control { min-width: 0; width: 100%; }
+  .filter-status { margin-left: 0; align-self: flex-start; }
   .task-form { grid-template-columns: 1fr; }
   .overlay { padding: var(--space-3); }
 }
+@media (max-width: 420px) {
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tagline { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .column { transition: none; }
+  .column, .card, .progress-bar, .btn { transition: none; }
+  .card:hover { transform: none; }
+  .toast { animation: none; }
 }
 </style>
 </head>
 <body>
 
 <!-- =====================================================================
-     HEADER — wordmark, live summary strip, Add Task
+     APP BAR — wordmark, demo note, theme toggle, Add Task
      ===================================================================== -->
-<header class="app-header">
-  <div class="header-row">
-    <div class="wordmark">
-      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
-        <rect x="1" y="1" width="32" height="32" rx="7" fill="none" stroke="currentColor" stroke-width="2"/>
-        <rect x="7" y="8" width="5" height="18" rx="1.5" fill="currentColor"/>
-        <rect x="14.5" y="8" width="5" height="12" rx="1.5" fill="currentColor" opacity="0.75"/>
-        <rect x="22" y="8" width="5" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+<header class="appbar">
+  <div class="wordmark">
+    <span class="logo" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 20 20" focusable="false">
+        <rect x="2" y="3" width="4" height="14" rx="1.2" fill="currentColor"/>
+        <rect x="8" y="3" width="4" height="10" rx="1.2" fill="currentColor" opacity="0.8"/>
+        <rect x="14" y="3" width="4" height="6" rx="1.2" fill="currentColor" opacity="0.6"/>
       </svg>
-      <div>
-        <h1>IT PMO</h1>
-        <p class="tagline">Project Management Office · Delivery Board</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <p class="demo-note">Demo data, held in memory only — refreshing the page resets the board.</p>
-      <button type="button" class="btn btn-accent" id="open-add-task" aria-haspopup="dialog">+ Add Task</button>
+    </span>
+    <div>
+      <h1>IT PMO <span class="version">v2</span></h1>
+      <p class="tagline">Project Management Office · Delivery Board</p>
     </div>
   </div>
-
-  <ul class="summary" aria-label="Board summary">
-    <li><span>Total</span> <strong id="sum-total">0</strong></li>
-    <li><span>Backlog</span> <strong id="sum-backlog">0</strong></li>
-    <li><span>In Progress</span> <strong id="sum-in-progress">0</strong></li>
-    <li><span>Blocked</span> <strong id="sum-blocked">0</strong></li>
-    <li><span>Done</span> <strong id="sum-done">0</strong></li>
-    <li class="summary-overdue"><span>⚠ Overdue</span> <strong id="sum-overdue">0</strong></li>
-  </ul>
+  <div class="appbar-actions">
+    <p class="demo-note">Demo data, held in memory only — refreshing the page resets the board.</p>
+    <button type="button" class="icon-btn icon-btn-lg theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
+      <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+    <button type="button" class="btn btn-primary" id="open-add-task" aria-haspopup="dialog">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
+      Add Task
+    </button>
+  </div>
 </header>
 
 <main>
   <!-- ===================================================================
+       OVERVIEW — delivery health (unfiltered) + KPI tiles
+       =================================================================== -->
+  <section class="overview" aria-label="Board summary">
+    <div class="panel health">
+      <div class="health-top">
+        <h2 class="eyebrow">Delivery health</h2>
+        <span class="rag rag-green" id="health-rag">Green</span>
+      </div>
+      <p class="health-reason" id="health-reason"></p>
+      <div>
+        <div class="progress-label"><span>Completion</span><strong id="progress-text">0%</strong></div>
+        <div class="progress" role="progressbar" aria-label="Tasks completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="summary">
+      <li class="stat stat-total"><span>Total</span> <strong id="sum-total">0</strong></li>
+      <li class="stat stat-backlog"><span>Backlog</span> <strong id="sum-backlog">0</strong></li>
+      <li class="stat stat-progress"><span>In Progress</span> <strong id="sum-in-progress">0</strong></li>
+      <li class="stat stat-blocked"><span>Blocked</span> <strong id="sum-blocked">0</strong></li>
+      <li class="stat stat-done"><span>Done</span> <strong id="sum-done">0</strong></li>
+      <li class="stat stat-overdue" id="stat-overdue"><span>Overdue</span> <strong id="sum-overdue">0</strong></li>
+    </ul>
+  </section>
+
+  <!-- ===================================================================
        FILTER BAR — pure client-side filtering over state.tasks
        =================================================================== -->
-  <section class="filters" aria-labelledby="filters-heading">
-    <h2 id="filters-heading">Filter</h2>
+  <section class="panel filters" aria-labelledby="filters-heading">
+    <h2 class="eyebrow" id="filters-heading">Filter</h2>
     <div class="filter-field">
       <label for="filter-project">Project</label>
-      <select id="filter-project">
+      <select class="control" id="filter-project">
         <option value="">All projects</option>
       </select>
     </div>
     <div class="filter-field">
       <label for="filter-assignee">Assignee contains</label>
-      <input type="search" id="filter-assignee" placeholder="e.g. Tan" autocomplete="off">
+      <div class="with-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="control" type="search" id="filter-assignee" placeholder="e.g. Tan" autocomplete="off">
+      </div>
     </div>
     <div class="filter-field">
       <label for="filter-priority">Priority</label>
-      <select id="filter-priority">
+      <select class="control" id="filter-priority">
         <option value="">All priorities</option>
       </select>
     </div>
-    <button type="button" class="btn" id="clear-filters">Clear filters</button>
+    <button type="button" class="btn btn-ghost" id="clear-filters">Clear filters</button>
     <p class="filter-status" id="filter-status"></p>
   </section>
 
@@ -656,12 +889,14 @@ main { padding: var(--space-4) var(--space-5) var(--space-6); }
      ADD TASK MODAL
      ===================================================================== -->
 <div class="overlay" id="task-overlay" hidden>
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-note">
     <div class="modal-header">
-      <h2 id="modal-title">Add Task</h2>
+      <div>
+        <h2 id="modal-title">Add Task</h2>
+        <p class="modal-note" id="modal-note">Fields marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required. The card is added to the board immediately; an email notification is sent in the background.</p>
+      </div>
       <button type="button" class="icon-btn" id="close-modal" aria-label="Close Add Task dialog">×</button>
     </div>
-    <p class="modal-note">Fields marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required. The card is added to the board immediately; an email notification is sent in the background.</p>
 
     <form class="task-form" id="task-form" novalidate>
       <div class="field field-full">
@@ -779,6 +1014,8 @@ const CATEGORIES = [
 ];
 const LIMITS = { title: 80, description: 500, assignee: 60 };
 
+const ICON_CALENDAR = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>`;
+
 /* =======================================================================
    3. STATE — the single source of truth (in memory only, no storage)
    ======================================================================= */
@@ -826,6 +1063,13 @@ function formatDate(iso) {
 
 function isOverdue(task) {
   return task.status !== "Done" && task.dueDate < todayISO();
+}
+
+/** Up to two initials for the assignee avatar, e.g. "Daniel Tan" → "DT". */
+function initials(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] || "?").slice(0, 2);
+  return letters.toUpperCase();
 }
 
 function findTask(id) {
@@ -918,7 +1162,27 @@ function applyFilters(tasks) {
 }
 
 /* =======================================================================
-   7. RENDERING — renderBoard() is the only writer of card markup
+   7. DELIVERY HEALTH — RAG status over all tasks (ignores filters)
+      Red: a Critical task is blocked or overdue. Amber: anything else is
+      blocked or overdue. Green: nothing blocked or overdue.
+   ======================================================================= */
+function computeHealth(tasks) {
+  const open = tasks.filter((t) => t.status !== "Done");
+  const atRisk = open.filter((t) => t.status === "Blocked" || isOverdue(t));
+  const critical = atRisk.filter((t) => t.priority === "Critical");
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+  if (critical.length) {
+    return { level: "red", label: "Red", reason: `${plural(critical.length, "critical task")} blocked or overdue; ${plural(atRisk.length, "task")} at risk in total.` };
+  }
+  if (atRisk.length) {
+    return { level: "amber", label: "Amber", reason: `${plural(atRisk.length, "task")} blocked or overdue — no critical items affected.` };
+  }
+  return { level: "green", label: "Green", reason: open.length ? "On track — nothing blocked or overdue." : "All tasks are done." };
+}
+
+/* =======================================================================
+   8. RENDERING — renderBoard() is the only writer of card markup
    ======================================================================= */
 const boardEl = document.getElementById("board");
 
@@ -931,8 +1195,9 @@ function renderCard(task) {
   const prio = task.priority.toLowerCase();
   const confirming = state.ui.confirmDeleteId === task.id;
   const moving = state.ui.moveMenuId === task.id;
+  const overdue = isOverdue(task);
 
-  const overdueBadge = isOverdue(task)
+  const overdueBadge = overdue
     ? `<span class="badge badge-overdue">⚠ Overdue</span>`
     : "";
 
@@ -971,26 +1236,48 @@ function renderCard(task) {
       <h3 class="card-title">${escapeHtml(task.title)}</h3>
       <p class="card-project">${escapeHtml(task.project)}</p>
       ${description}
-      <dl class="card-meta">
-        <div><dt>Assignee:</dt><dd>${escapeHtml(task.assignee)}</dd></div>
-        <div><dt>Due:</dt><dd><time datetime="${escapeHtml(task.dueDate)}">${escapeHtml(formatDate(task.dueDate))}</time></dd></div>
-      </dl>
       <div class="card-tags">
-        <span class="pill pill-${prio}">Priority: ${escapeHtml(task.priority)}</span>
+        <span class="pill">Priority: ${escapeHtml(task.priority)}</span>
         <span class="tag">${escapeHtml(task.category)}</span>
       </div>
+      <dl class="card-meta">
+        <div>
+          <dt class="sr-only">Assignee</dt>
+          <dd><span class="avatar" aria-hidden="true">${escapeHtml(initials(task.assignee))}</span><span class="assignee-name">${escapeHtml(task.assignee)}</span></dd>
+        </div>
+        <div>
+          <dt class="sr-only">Due</dt>
+          <dd class="due${overdue ? " is-overdue" : ""}">${ICON_CALENDAR}<time datetime="${escapeHtml(task.dueDate)}">${escapeHtml(formatDate(task.dueDate))}</time></dd>
+        </div>
+      </dl>
       <div class="card-actions">${moveControl}</div>
     </li>`;
 }
 
 function renderSummary() {
   const count = (status) => state.tasks.filter((t) => t.status === status).length;
-  document.getElementById("sum-total").textContent = state.tasks.length;
+  const total = state.tasks.length;
+  const done = count("Done");
+  const overdue = state.tasks.filter(isOverdue).length;
+
+  document.getElementById("sum-total").textContent = total;
   document.getElementById("sum-backlog").textContent = count("Backlog");
   document.getElementById("sum-in-progress").textContent = count("In Progress");
   document.getElementById("sum-blocked").textContent = count("Blocked");
-  document.getElementById("sum-done").textContent = count("Done");
-  document.getElementById("sum-overdue").textContent = state.tasks.filter(isOverdue).length;
+  document.getElementById("sum-done").textContent = done;
+  document.getElementById("sum-overdue").textContent = overdue;
+  document.getElementById("stat-overdue").classList.toggle("is-alert", overdue > 0);
+
+  const health = computeHealth(state.tasks);
+  const rag = document.getElementById("health-rag");
+  rag.className = `rag rag-${health.level}`;
+  rag.textContent = health.label;
+  document.getElementById("health-reason").textContent = health.reason;
+
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById("progress-text").textContent = `${pct}% · ${done} of ${total}`;
+  document.getElementById("progress").setAttribute("aria-valuenow", String(pct));
+  document.getElementById("progress-bar").style.width = `${pct}%`;
 }
 
 /**
@@ -1030,7 +1317,7 @@ function renderBoard(options = {}) {
 }
 
 /* =======================================================================
-   8. MUTATIONS — change state, then re-render
+   9. MUTATIONS — change state, then re-render
    ======================================================================= */
 function addTask(data) {
   const task = {
@@ -1072,7 +1359,7 @@ function deleteTask(id) {
 }
 
 /* =======================================================================
-   9. CARD ACTIONS — delete confirm toggle + keyboard "Move ▸" fallback
+   10. CARD ACTIONS — delete confirm toggle + keyboard "Move ▸" fallback
    ======================================================================= */
 boardEl.addEventListener("click", (event) => {
   const btn = event.target.closest("[data-action]");
@@ -1125,7 +1412,7 @@ boardEl.addEventListener("keydown", (event) => {
 });
 
 /* =======================================================================
-   10. DRAG & DROP — native HTML5 API
+   11. DRAG & DROP — native HTML5 API
    ======================================================================= */
 function clearDragState() {
   state.ui.draggingId = null;
@@ -1170,7 +1457,7 @@ boardEl.addEventListener("drop", (event) => {
 boardEl.addEventListener("dragend", clearDragState);
 
 /* =======================================================================
-   11. FILTER BAR WIRING
+   12. FILTER BAR WIRING
    ======================================================================= */
 const filterProject = document.getElementById("filter-project");
 const filterAssignee = document.getElementById("filter-assignee");
@@ -1194,7 +1481,7 @@ document.getElementById("clear-filters").addEventListener("click", () => {
 });
 
 /* =======================================================================
-   12. ADD TASK MODAL & FORM VALIDATION
+   13. ADD TASK MODAL & FORM VALIDATION
    ======================================================================= */
 const overlayEl = document.getElementById("task-overlay");
 const formEl = document.getElementById("task-form");
@@ -1343,7 +1630,30 @@ overlayEl.addEventListener("keydown", (event) => {
 });
 
 /* =======================================================================
-   13. FORMSUBMIT — AJAX JSON notification (the only network call)
+   14. THEME — follows the OS setting; the toggle overrides it in memory
+       only (sets data-theme on <html>; nothing is stored)
+   ======================================================================= */
+const themeToggle = document.getElementById("theme-toggle");
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+function currentTheme() {
+  return document.documentElement.dataset.theme || (darkQuery.matches ? "dark" : "light");
+}
+
+function syncThemeToggle() {
+  const theme = currentTheme();
+  themeToggle.dataset.current = theme;
+  themeToggle.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+}
+
+themeToggle.addEventListener("click", () => {
+  document.documentElement.dataset.theme = currentTheme() === "dark" ? "light" : "dark";
+  syncThemeToggle();
+});
+darkQuery.addEventListener("change", syncThemeToggle);
+
+/* =======================================================================
+   15. FORMSUBMIT — AJAX JSON notification (the only network call)
    ======================================================================= */
 async function notifyNewTask(task) {
   const controller = new AbortController();
@@ -1382,10 +1692,10 @@ async function notifyNewTask(task) {
 }
 
 /* =======================================================================
-   14. TOASTS — transient, non-blocking messages (aria-live region)
+   16. TOASTS — transient, non-blocking messages (aria-live region)
    ======================================================================= */
 const toastsEl = document.getElementById("toasts");
-const TOAST_ICONS = { success: "✓", warning: "⚠", info: "ℹ" };
+const TOAST_ICONS = { success: "✓", warning: "!", info: "i" };
 
 function showToast(message, type = "success") {
   const toast = document.createElement("div");
@@ -1414,13 +1724,14 @@ function showToast(message, type = "success") {
 }
 
 /* =======================================================================
-   15. INIT
+   17. INIT
    ======================================================================= */
 function init() {
   populateSelect(filterProject, PROJECTS);
   populateSelect(filterPriority, PRIORITIES);
   populateSelect(fieldEl("project"), PROJECTS);
   populateSelect(fieldEl("category"), CATEGORIES);
+  syncThemeToggle();
   seedTasks();
   renderBoard();
 }

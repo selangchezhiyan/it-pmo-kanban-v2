@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-An IT PMO Kanban board for a fictitious bank, used as an internal demo/training tool. The whole app is one file: `index.html`, with all markup, one `<style>` block and one `<script>` block. Do not use a real bank's logo, trademarks or styling; the only branding is the neutral "IT PMO" text wordmark and a corporate blue palette. The task-ID prefix `UOB-ITPM-####` and the email subject `[UOB IT PMO] …` are plain-text identifiers the spec asks for.
+An IT PMO Kanban board for a fictitious bank, used as an internal demo/training tool. This is **v2** (redesign, published to the `it-pmo-kanban-v2` repo; v1 lives on `main` of `it-pmo-kanban`). The whole app is one file: `index.html`, with all markup, one `<style>` block and one `<script>` block. Do not use a real bank's logo, trademarks or styling; the only branding is the neutral "IT PMO" text wordmark and a corporate blue palette. The task-ID prefix `UOB-ITPM-####` and the email subject `[UOB IT PMO] …` are plain-text identifiers the spec asks for.
 
 ## Hard constraints (from the original spec — keep them)
 
@@ -33,6 +33,8 @@ The only expected hit is the `FORMSUBMIT_ENDPOINT` line.
 - **Escaping:** every user-supplied string goes through `escapeHtml()` before being interpolated into HTML. Toasts use `textContent`.
 - **Dates:** dates are local `YYYY-MM-DD` strings from `toISODate()`/`todayISO()`, not UTC, and are compared as strings. A task is overdue when `dueDate < today` and its status is not Done. The seed due dates use `addDays()` so the demo always shows some overdue tasks.
 - **Add Task flow (`handleSubmit`):** `validateForm()` → inline errors with `aria-invalid` → `addTask()` adds the card straight away (optimistic) → form reset and success toast → `setSending(true)` → `await notifyNewTask()` in try/catch (a failure shows the warning toast "Card added locally — email notification failed") → `setSending(false)`. The modal stays open after submit.
+- **v2 theming:** colours are shadcn-style semantic tokens stored as H S L triples (`--primary: 213 72% 36%`, used as `hsl(var(--primary))`). Dark values are defined twice: under `@media (prefers-color-scheme: dark)` guarded by `:root:not([data-theme="light"])`, and under `:root[data-theme="dark"]`. Keep both blocks in sync. The app-bar toggle only sets `data-theme` on `<html>` (in memory, never stored).
+- **Delivery health:** `computeHealth()` (called from `renderSummary()`, unfiltered) returns red when a Critical task is blocked or overdue, amber when any other open task is, and green otherwise. The completion bar is Done ÷ Total.
 - **Vocabularies:** `STATUSES`, `PRIORITIES`, `PROJECTS`, `CATEGORIES` and `LIMITS` are defined once and used to fill the selects at `init()`. The four board columns are hard-coded in the markup (`data-status` must match `STATUSES`).
 
 ## FormSubmit
