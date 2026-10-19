@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-soB1WxI3yebckUyvZ+CnGXcG3EnxDZU2dKXFKEbl0f4='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WbFKepudAWpLNju7dzTTY5dcIJweUi+NCvh5CeqPQF8='; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IT PMO Kanban v2</title>
 <style>
@@ -751,13 +751,20 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
   border-top: 1px solid hsl(var(--border));
 }
 
+/* Status-change dialog (shown after a card moves column) */
+.overlay-center { place-items: center; }
+.modal-sm { width: min(420px, 100%); }
+.status-msg { padding: var(--space-3) var(--space-5) 0; font-size: 14px; }
+.status-msg strong { font-weight: 700; }
+.modal-sm .form-actions { margin: var(--space-4) var(--space-5) 0; padding-bottom: var(--space-5); }
+
 /* =====================================================================
    9. TOASTS
    ===================================================================== */
 .toasts {
   position: fixed;
   right: var(--space-4);
-  bottom: var(--space-4);
+  bottom: calc(var(--space-4) + 68px);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -793,6 +800,67 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
 .toast-warning { --tone: var(--warning); background: hsl(var(--warning-soft)); border-color: hsl(var(--warning) / 0.35); }
 .toast-info    { --tone: var(--primary); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* =====================================================================
+   9b. CHAT WIDGET — floating launcher that hands off to WhatsApp
+   ===================================================================== */
+.chat-launcher {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 56px; height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: hsl(var(--success));
+  color: hsl(0 0% 100%);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+.chat-launcher:hover { transform: scale(1.06); }
+.chat-launcher:focus-visible { outline: 3px solid hsl(var(--ring)); outline-offset: 3px; }
+.chat-launcher svg { width: 28px; height: 28px; }
+.chat-panel {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + 68px);
+  z-index: 90;
+  width: min(320px, calc(100vw - 2 * var(--space-4)));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: toast-in 180ms ease-out;
+}
+.chat-panel[hidden] { display: none; }
+.chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  background: hsl(var(--success));
+  color: hsl(0 0% 100%);
+  font-weight: 700;
+}
+.chat-head .icon-btn { color: inherit; }
+.chat-body { padding: var(--space-4); background: hsl(var(--muted)); min-height: 72px; }
+.chat-bubble {
+  display: inline-block;
+  max-width: 85%;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius) var(--radius) var(--radius) var(--radius-sm);
+  background: hsl(var(--card));
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+}
+.chat-foot { padding: var(--space-3) var(--space-4); }
+.chat-foot .btn { width: 100%; justify-content: center; text-decoration: none; }
 
 /* =====================================================================
    10. RESPONSIVE — stack columns below 768px
@@ -831,7 +899,8 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
 @media (prefers-reduced-motion: reduce) {
   .column, .card, .progress-bar, .btn { transition: none; }
   .card:hover { transform: none; }
-  .toast { animation: none; }
+  .toast, .chat-panel { animation: none; }
+  .chat-launcher { transition: none; }
 }
 </style>
 </head>
@@ -1095,8 +1164,38 @@ main { padding: var(--space-5) var(--space-5) var(--space-6); max-width: 1600px;
   </div>
 </div>
 
+<!-- =====================================================================
+     STATUS CHANGE DIALOG — confirms a card's move to another column
+     ===================================================================== -->
+<div class="overlay overlay-center" id="status-overlay" hidden>
+  <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="status-title" aria-describedby="status-msg">
+    <div class="modal-header">
+      <h2 id="status-title">Status changed</h2>
+    </div>
+    <p class="status-msg" id="status-msg"></p>
+    <div class="form-actions">
+      <button type="button" class="btn btn-primary" id="status-ok">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- Chart hover tooltip (decorative duplicate of the table views) -->
 <div class="chart-tip" id="chart-tip" hidden aria-hidden="true"></div>
+
+<!-- Chat widget: greets on open, then hands off to WhatsApp -->
+<section class="chat-panel" id="chat-panel" role="dialog" aria-labelledby="chat-title" hidden>
+  <div class="chat-head">
+    <span id="chat-title">IT PMO Assistant</span>
+    <button type="button" class="icon-btn" id="chat-close" aria-label="Close chat">×</button>
+  </div>
+  <div class="chat-body" id="chat-body" aria-live="polite"></div>
+  <div class="chat-foot">
+    <a class="btn btn-primary" id="chat-whatsapp" href="https://wa.me/6590675453" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+  </div>
+</section>
+<button type="button" class="chat-launcher" id="chat-launcher" aria-label="Open chat" aria-expanded="false" aria-controls="chat-panel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>
+</button>
 
 <!-- Toast region: announced politely to screen readers -->
 <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
@@ -1556,13 +1655,45 @@ function addTask(data) {
 function moveTask(id, status, options = {}) {
   const task = findTask(id);
   if (!task || !STATUSES.includes(status)) return;
-  const changed = task.status !== status;
+  const from = task.status;
   task.status = status;
   state.ui.moveMenuId = null;
   state.ui.confirmDeleteId = null;
   renderBoard({ focus: options.restoreFocus ? controlSelector("move-open", id) : null });
-  if (changed) showToast(`${task.id} moved to ${status}`, "info");
+  if (from !== status) showStatusDialog(task, from, status);
 }
+
+/* Status-change dialog: "Status is changed from <old> to <new>". Focus
+   returns to the card's Move button (or wherever it was) on close. */
+const statusOverlayEl = document.getElementById("status-overlay");
+const statusOkBtn = document.getElementById("status-ok");
+let statusReturnSelector = null;
+
+function showStatusDialog(task, from, to) {
+  document.getElementById("status-msg").innerHTML =
+    `${escapeHtml(task.id)}: status is changed from <strong>${escapeHtml(from)}</strong> to <strong>${escapeHtml(to)}</strong>.`;
+  statusReturnSelector = controlSelector("move-open", task.id);
+  statusOverlayEl.hidden = false;
+  statusOkBtn.focus();
+}
+
+function closeStatusDialog() {
+  statusOverlayEl.hidden = true;
+  const target = statusReturnSelector && boardEl.querySelector(statusReturnSelector);
+  if (target) target.focus();
+}
+
+statusOkBtn.addEventListener("click", closeStatusDialog);
+statusOverlayEl.addEventListener("click", (event) => {
+  if (event.target === statusOverlayEl) closeStatusDialog();
+});
+// OK is the only control, so Tab stays on it; Escape closes.
+statusOverlayEl.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" || event.key === "Tab") {
+    event.preventDefault();
+    if (event.key === "Escape") closeStatusDialog();
+  }
+});
 
 function deleteTask(id) {
   const task = findTask(id);
@@ -1938,6 +2069,35 @@ function showToast(message, type = "success") {
   toastsEl.append(toast);
   setTimeout(remove, type === "warning" ? 7000 : 4000);
 }
+
+/* =======================================================================
+   16b. CHAT WIDGET — opening it posts the greeting; the link goes to WhatsApp
+   ======================================================================= */
+const CHAT_GREETING = "How can I help you?";
+const chatLauncher = document.getElementById("chat-launcher");
+const chatPanel = document.getElementById("chat-panel");
+const chatBody = document.getElementById("chat-body");
+
+function setChatOpen(open) {
+  chatPanel.hidden = !open;
+  chatLauncher.setAttribute("aria-expanded", String(open));
+  chatLauncher.setAttribute("aria-label", open ? "Close chat" : "Open chat");
+  if (!open) return;
+  const bubble = document.createElement("p");
+  bubble.className = "chat-bubble";
+  bubble.textContent = CHAT_GREETING;
+  chatBody.replaceChildren(bubble);
+  document.getElementById("chat-whatsapp").focus();
+}
+
+chatLauncher.addEventListener("click", () => setChatOpen(chatPanel.hidden));
+document.getElementById("chat-close").addEventListener("click", () => {
+  setChatOpen(false);
+  chatLauncher.focus();
+});
+chatPanel.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { setChatOpen(false); chatLauncher.focus(); }
+});
 
 /* =======================================================================
    17. INIT
