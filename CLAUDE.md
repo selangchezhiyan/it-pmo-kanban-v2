@@ -13,6 +13,9 @@ An IT PMO Kanban board for a fictitious bank, used as an internal demo/training 
 - No persistence: do not use localStorage, sessionStorage, IndexedDB, cookies or any other storage API. A page refresh resets the board to the seed data on purpose, and the header note says so.
 - The only network call is FormSubmit's AJAX endpoint (`notifyNewTask()`). A failure there must never break the board.
 - No `alert()`/`confirm()` (use inline errors and toasts) and no `!important`. Colours and spacing come from CSS custom properties on `:root`.
+- **CSP hash:** the `<meta http-equiv="Content-Security-Policy">` in `<head>` pins the single inline `<script>` with a `script-src 'sha256-…'` hash. **Any edit to the script invalidates that hash and silently disables the script (breaking the whole app).** After changing the script, recompute and update the hash over the exact script contents with LF line endings, e.g.:
+  `node -e 'const c=require("crypto"),f=require("fs");const s=f.readFileSync("index.html","utf8").replace(/\r\n/g,"\n");const m=s.match(/<script>([\s\S]*?)<\/script>/);console.log("sha256-"+c.createHash("sha256").update(m[1]).digest("base64"))'`
+  `.gitattributes` forces `*.html` to LF so the served bytes (and therefore the hash) stay stable. `style-src 'unsafe-inline'` is intentional — the inline `<style>` and the charts' dynamic `style="width:…"` attributes need it; `script-src` carries the XSS protection.
 
 ## Running / checking
 
